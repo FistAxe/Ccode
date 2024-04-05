@@ -31,7 +31,7 @@ int SolveDE(char REALtype, int arraysize)
     
     printf("%16s %16s %16s \n","index","tau","zeta");
     for(int i=0;i<Narray;i++){
-        printf("%16d %f %f\n", i, dtau*i, (float)zeta[i]);
+        printf("%16d %16f %16f\n", i, dtau*i, (float)zeta[i]);
     }
     return 0;
 }
