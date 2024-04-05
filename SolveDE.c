@@ -1,15 +1,17 @@
 #include <stdio.h>
-//#define REAL float
+#define REAL float
 //#define REAL double
 //#define Narray 100
 
 int SolveDE(char REALtype, int arraysize)
 {
     if(REALtype == 'f'){
+        #undef REAL
         #define REAL float
     }
 
     else if(REALtype == 'd'){
+        #undef REAL
         #define REAL double
     }
     
