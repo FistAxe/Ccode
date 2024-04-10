@@ -4,10 +4,12 @@
 //#define REAL double
 //#define Narray 100
 
-int stradd(char *dest, char *src);
-int stringcsvadder(char *string);
-char* SetTableName(char REALtype, int Narray_table);
-int SolveDE(char REALtype, int arraysize);
+int stradd(char *dest, char *src);  //Copied and Pasted from web
+int stringcsvadder(char *string);   //Adds .csv at the end of the string
+char* SetTableName(char REALtype, int Narray_table);    //Generates string name by args
+int SolveDE(char REALtype, int arraysize);  //REAL type selection function
+int SolveDE_f(int arraysize);   //float ver
+int SolveDE_d(int arraysize);   //double ver
 
 char* SetTableName(char REALtype, int Narray_table){
     static char tablename[50] = "homework1/SolveDE_";   //initialization, enable using stradd() from the beginning
@@ -31,20 +33,27 @@ char* SetTableName(char REALtype, int Narray_table){
 int SolveDE(char REALtype, int arraysize)
 {
     if(REALtype == 'f'){
-        #undef REAL
-        #define REAL float
+        SolveDE_f(arraysize);
     }
 
     else if(REALtype == 'd'){
-        #undef REAL
-        #define REAL double
+        SolveDE_d(arraysize);
     }
-    
+
+    return 0;
+}
+
+int SolveDE_f(int arraysize)
+{
+    #undef REAL
+    #define REAL float
     int Narray = arraysize;
 
     REAL zeta[Narray];
     REAL tauM = 3.0;
     REAL dtau = tauM/(Narray - 1);
+
+    printf("size of REAL is %d\n", sizeof(tauM));
 
     zeta[0] = 0.9;
     zeta[1] = 0.9;
@@ -66,19 +75,63 @@ int SolveDE(char REALtype, int arraysize)
     printf("%c\n", save);
     
     if(save == 'Y'){
-        FILE *table = fopen(SetTableName(REALtype, Narray), "w");
+        FILE *table = fopen(SetTableName('f', arraysize), "w");
         if (table == NULL){
             printf("file open error!\n");
         }
 
-        for(int i=0;i<Narray;i++){
+        for(int i=0;i<arraysize;i++){
             fprintf(table,"%d,%f,%f\n", i, dtau*i, (float)zeta[i]);
         }
         fclose(table);
     }
-
-    return 0;
 }
+
+int SolveDE_d(int arraysize)
+{  
+    #undef REAL
+    #define REAL double
+    
+    int Narray = arraysize;
+
+    REAL zeta[Narray];
+    REAL tauM = 3.0;
+    REAL dtau = tauM/(Narray - 1);
+
+    printf("size of REAL is %d\n", sizeof(tauM));
+
+    zeta[0] = 0.9;
+    zeta[1] = 0.9;
+    
+    for(int i=0;i<(Narray-2);i++){
+        REAL fzeta = (1/zeta[i+1]/zeta[i+1]/zeta[i+1] - 1/zeta[i+1]/zeta[i+1]);
+        zeta[i+2] = 2*zeta[i+1] - zeta[i] + (dtau)*(dtau)*fzeta;
+    }
+    
+    printf("%16s %16s %16s \n","index","tau","zeta");
+    for(int i=0;i<Narray;i++){
+        printf("%16d %16f %16f\n", i, dtau*i, (float)zeta[i]);
+    }
+
+    char save = '0';    //File exporting part
+    getchar();
+    printf("\nSave as a .csv file?\nPress Y to save.\n");
+    scanf("%c", &save);
+    printf("%c\n", save);
+    
+    if(save == 'Y'){
+        FILE *table = fopen(SetTableName('d', arraysize), "w");
+        if (table == NULL){
+            printf("file open error!\n");
+        }
+
+        for(int i=0;i<arraysize;i++){
+            fprintf(table,"%d,%f,%f\n", i, dtau*i, (float)zeta[i]);
+        }
+        fclose(table);
+    }
+}
+
 
 int stradd(char *dest, char *src){
 
