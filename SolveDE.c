@@ -7,7 +7,7 @@
 int stradd(char *dest, char *src);  //Copied and Pasted from web
 int stringcsvadder(char *string);   //Adds .csv at the end of the string
 char* SetTableName(char REALtype, int Narray_table);    //Generates string name by args
-int SolveDE(char REALtype, int arraysize);  //REAL type selection function
+void SolveDE();  //REAL type, arraynum selection function
 int SolveDE_f(int arraysize);   //float ver
 int SolveDE_d(int arraysize);   //double ver
 
@@ -28,19 +28,6 @@ char* SetTableName(char REALtype, int Narray_table){
     stradd(tablename, ".csv");  //add '.csv' at the end of the file name.
 
     return tablename;
-}
-
-int SolveDE(char REALtype, int arraysize)
-{
-    if(REALtype == 'f'){
-        SolveDE_f(arraysize);
-    }
-
-    else if(REALtype == 'd'){
-        SolveDE_d(arraysize);
-    }
-
-    return 0;
 }
 
 int SolveDE_f(int arraysize)
@@ -85,6 +72,7 @@ int SolveDE_f(int arraysize)
         }
         fclose(table);
     }
+    return 0;
 }
 
 int SolveDE_d(int arraysize)
@@ -130,6 +118,8 @@ int SolveDE_d(int arraysize)
         }
         fclose(table);
     }
+
+    return 0;
 }
 
 
@@ -147,7 +137,7 @@ int stradd(char *dest, char *src){
     return 0;
 }
 
-int main(void){
+void SolveDE(){
     
     int arraysize = 0;
     char REALtype = '0';
@@ -160,6 +150,16 @@ int main(void){
         printf("put array size.\n");
         scanf("%d", &arraysize);
     
-    SolveDE(REALtype, arraysize);
+    if(REALtype == 'f'){
+        SolveDE_f(arraysize);
+    }
+
+    else if(REALtype == 'd'){
+        SolveDE_d(arraysize);
+    }
+}
+
+int main(void){
+    SolveDE();
     return 0;
 }
