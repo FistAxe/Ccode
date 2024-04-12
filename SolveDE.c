@@ -159,7 +159,18 @@ void SolveDE(){
     }
 }
 
-int main(void){
-    SolveDE();
+int main(void){     //with restarting feature
+    char repeat = 'a';
+    
+    do
+    {
+        if(repeat == 'Y'){
+            getchar();
+        };
+        SolveDE();
+        printf("Press Y to restart.\n");
+        scanf(" %c", &repeat);
+    } while (repeat == 'Y');
+
     return 0;
 }
