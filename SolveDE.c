@@ -50,6 +50,8 @@ int SolveDE_f(int arraysize)
         zeta[i+2] = 2*zeta[i+1] - zeta[i] + (dtau)*(dtau)*fzeta;
         if (zeta[i+2] == zeta[i+1]){
             printf("Increment underflow!\n");
+            //increment finding
+            printf("Increment was %e", ((dtau)*(dtau)*fzeta));
             return 0;
         }
     }
@@ -58,6 +60,8 @@ int SolveDE_f(int arraysize)
     for(int i=0;i<Narray;i++){
         printf("%16d %16f %16f\n", i, dtau*i, (float)zeta[i]);
     }
+    //increment finding
+    printf("Min increment is: %e",(zeta[2]-zeta[1]));
 
     char save = '0';    //File exporting part
     getchar();
