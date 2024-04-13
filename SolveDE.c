@@ -48,6 +48,10 @@ int SolveDE_f(int arraysize)
     for(int i=0;i<(Narray-2);i++){
         REAL fzeta = (1/zeta[i+1]/zeta[i+1]/zeta[i+1] - 1/zeta[i+1]/zeta[i+1]);
         zeta[i+2] = 2*zeta[i+1] - zeta[i] + (dtau)*(dtau)*fzeta;
+        if (zeta[i+2] == zeta[i+1]){
+            printf("Increment underflow!\n");
+            return 0;
+        }
     }
     
     printf("%16s %16s %16s \n","index","tau","zeta");
