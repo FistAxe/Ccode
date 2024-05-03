@@ -4,6 +4,7 @@
 #define POINT_NUM 16
 #define TXT_LENGTH 25
 #define ROUTE_NUM 9
+#define SUCCESS 1
 typedef struct {
     double tau;
     double zeta;
@@ -40,7 +41,7 @@ int lineCleaner(char *str, char dest[]){     //leaves only IsValue() characters 
         }
     }
     
-    printf("debug: dest[3]: %c\n", dest[3]);
+    //printf("debug: dest[3]: %c\n", dest[3]);
 
     return 0;
 }
@@ -112,18 +113,12 @@ int readFile(char filename[20], Point point[]){   //get file from filename, and 
             //printf("debug: cleaned line: %s", buf);
             strInverter(buf, &point[i]);
             //printf("%dth line done!\n",i);
-            //printf("%dth tau: %lf\n", i, table[i].tau);
+            //printf("debug: %dth tau: %lf\n", i, point[i].tau);
         }
     }
 
     fclose(fp);
-    return 0;
-}
-
-
-double setDelta(double value, double prev_value){   
-    double delta_value = value - prev_value;
-    return delta_value;
+    return SUCCESS;
 }
 
 double getdAction(double tau, double prev_tau, double zeta, double prev_zeta, double theta, double prev_theta){
@@ -131,8 +126,9 @@ double getdAction(double tau, double prev_tau, double zeta, double prev_zeta, do
     double dzeta = zeta - prev_zeta;
     double dtheta = theta - prev_theta;
 
-    double action = ((1/2*( (dzeta/dtau)*(dzeta/dtau) + zeta*zeta*(dtheta/dtau)*(dtheta/dtau) )) + 1/zeta)*dtau;
-    return action;
+    double daction = ((0.5*( (dzeta/dtau)*(dzeta/dtau) + zeta*zeta*(dtheta/dtau)*(dtheta/dtau) )) + 1.0/zeta)*dtau;
+    printf("debug: daction = %f\n", daction);
+    return daction;
 }
 
 void fileNameTrimmer(char filename[]){
@@ -144,22 +140,39 @@ void fileNameTrimmer(char filename[]){
     }
 }
 
+void extentionRemover(char *str){
+    int i = 0;
+
+    while (*str){
+        i++;
+        str++;
+    }
+    *(str-1) = *(str-2) = *(str-3) = *(str-4) = '\0';
+}
+
 void calculateAction(Point point[], double *action){
-    for (int i=1; i<POINT_NUM;i++){     //Starts from (0,1) interval
-        double sum_action = 0;
+    double sum_action = 0;
+    for (int i=1; i<POINT_NUM;i++){     //Starts from (0,1) interval 
         sum_action += getdAction(
                                  point[i].tau, point[i-1].tau,
                                  point[i].zeta, point[i-1].zeta,
                                  point[i].theta, point[i-1].theta
                                 );
-        *action = sum_action;
+        printf("debug: sum_action: %f\n", sum_action);
     }
+    *action = sum_action;
+    printf("debug: *action : %f\n", *action);
+}
+
+void addRoute(Route *route, char *filename){
+    sprintf(route->route_name, "%s", filename);
 }
 
 int main(void){
     char filename[TXT_LENGTH];  //max filename legnth: TXT_LENGTH
     Point point[POINT_NUM];    //max number of points: POINT_NUM
     Route route[ROUTE_NUM];
+    int route_index = 0;
     //debug: route[0].tau = 0.0123f;
 
     printf("Homework 2: Action Calculator\n");
@@ -167,23 +180,29 @@ int main(void){
     {
         printf("Type the name of a route txt file placed in the same folder.\n");
         printf("Number of points must be 16, and name of the txt file must be shorter than 20.\n");
-        printf("Press q to exit: ");
+        printf("Press q to end adding route: ");
         fgets(filename, TXT_LENGTH, stdin);
         if (filename[0] == 'q')
             break;
-        else {
-            addRoute(route);
-        }
         fileNameTrimmer(filename);
-        readFile(filename, point);
+        if (readFile(filename, point) == SUCCESS){
+            extentionRemover(filename);
+            addRoute(&route[route_index], filename);
+            printf("debug: Route %s added\n", route[route_index].route_name);
 
-        //for (int i=0;i<POINT_NUM;i++){
-        //   printf("tau[%d]: %lf\n", i, route[i].tau);
-        //}
+            //for (int i=0;i<POINT_NUM;i++){
+            //   printf("tau[%d]: %lf\n", i, route[i].tau);
+            //}
 
-        for (int i=0;i<POINT_NUM;i++){
-            calculateAction(point, &(route[dynamic].total_action));
+            calculateAction(point, &(route[route_index].total_action));
+            route_index += 1;
         }
     }
+
+    for (int i=0;i<route_index;i++){
+        printf("Route name: %s   ", route[i].route_name);
+        printf("Total Action: %f\n", route[i].total_action);
+    }
+
     return 0;
 }
