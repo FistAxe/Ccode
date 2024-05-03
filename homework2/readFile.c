@@ -6,42 +6,27 @@ typedef struct {
     double theta;
 } Table;
 
-int readFile(char filename[20], Table *table[20]){
-    FILE *fp = fopen(filename, 'r');
-    if (fp == NULL){
-        return 0;
+int IsValue(char value){    //return 1 if value is number of ','
+    char valueset[11] = {'0','1','2','3','4','5','6','7','8','9',','}; //defines meaningful char only
+
+    for (int i=0;i<11;i++){
+        if (value == valueset[i])
+            return 1;
     }
     
-    char line[50];
-    int repeat = 1;
-    while (repeat == 0){
-        
-        fgets(line, 50, fp);
-        if (line[0] == NULL){
-            repeat = 0;
-        }
-        else{
-            char buf = line[50];
-            buf = lineCleaner(line);
-            strDivider(buf, *table);
-        }
-    }
-
-    fclose(filename);
     return 0;
 }
 
 int main(){
-    char filename[30];
-    Table table[20];
-    
-    printf("test. type file name.txt: ");
-    scanf("%s", &filename);
-    readFile(filename, table);
-
-    for (int i=0;i<20;i++){
-        printf("tau: %lf\n", table[i].tau);
+    char str[] = "123ab,456";
+    printf("%c", str[3]);
+    for (int i=0;i<9;i++){
+        printf("str[i] is %c\n", str[i]);
+        printf("IsValue is %d\n", IsValue(str[i]));
+        if (IsValue(str[i]) == 1){
+            printf("%c!\n", str[i]); 
+        }
     }
-
+    printf("end");
     return 0;
 }
