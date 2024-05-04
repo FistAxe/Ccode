@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "do_TSomething.h"
 
 #define POINT_NUM 16
-#define TXT_LENGTH 25
 #define ROUTE_NUM 9
 #define SUCCESS 1
 typedef struct {
@@ -10,11 +10,6 @@ typedef struct {
     double zeta;
     double theta;
 } Point;
-
-typedef struct {
-    char route_name[TXT_LENGTH];
-    double total_action;
-} Route;
 
 int IsValue(char value){    //return 1 if value is number of ','
     char valueset[12] = {'0','1','2','3','4','5','6','7','8','9',',','.'}; //defines meaningful char only
@@ -169,6 +164,8 @@ void addRoute(Route *route, char *filename){
 }
 
 int main(void){
+    test();
+    
     char filename[TXT_LENGTH];  //max filename legnth: TXT_LENGTH
     Point point[POINT_NUM];    //max number of points: POINT_NUM
     Route route[ROUTE_NUM];
@@ -204,5 +201,7 @@ int main(void){
         printf("Total Action: %f\n", route[i].total_action);
     }
 
+    char rootname[10] ="rootfile"; 
+    do_TSomething_C(rootname, route_index, route);
     return 0;
 }

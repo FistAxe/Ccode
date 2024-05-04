@@ -4,13 +4,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TH1D.h>
-
-#define TXT_LENGTH 25
-
-typedef struct {
-    char route_name[TXT_LENGTH];
-    double total_action;
-} Route;
+#include "do_TSomething.h"
 
 void do_TSomething(char* filename, int total_route, Route route[]){
     printf("----Debugging----\n");
@@ -47,4 +41,10 @@ void do_TSomething(char* filename, int total_route, Route route[]){
     file->Write();
     printf("Debug: TFile written\n");
     file->Close();
+}
+
+extern "C" {
+    void do_TSomething_C(char* filename, int total_route, Route route[]){
+        do_TSomething(filename, total_route, route);
+    }
 }
