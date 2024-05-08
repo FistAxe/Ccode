@@ -6,6 +6,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TH1D.h>
+#include <TCanvas.h>
 #include "do_TSomething.h"
 
 void do_TSomething(char* filename, int total_route, Route route[]){
@@ -29,9 +30,14 @@ void do_TSomething(char* filename, int total_route, Route route[]){
         tree->Fill();
     }
 
+    TCanvas *canv = new TCanvas("canv", "Canvas", 800, 600);
+    
     TH1D* histo = new TH1D("histo", "histo;Route Name;Action", total_route, 0, total_route);    //graph making
     histo->SetMinimum(0);
     histo->SetMaximum(7);
+    histo->SetBarWidth(0.8);
+    histo->SetBarOffset(0.1);
+    histo->SetFillColor(38);
 
     for (int i=1;i<=total_route;i++){   //give y action, x route[].route_name
         histo->SetBinContent(i, route[i-1].total_action);
@@ -39,6 +45,7 @@ void do_TSomething(char* filename, int total_route, Route route[]){
     }
 
     histo->Draw("b");   //bar graph
+    canv->SaveAs("Histogram", "png");
 
     file->Write();
     printf("Debug: TFile written\n");
