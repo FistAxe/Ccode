@@ -45,7 +45,7 @@ void do_TSomething(char* filename, int total_route, Route route[]){
     }
 
     histo->Draw("b");   //bar graph
-    canv->SaveAs("Histogram", "png");
+    canv->SaveAs("Histogram.png", "");
 
     file->Write();
     printf("Debug: TFile written\n");
