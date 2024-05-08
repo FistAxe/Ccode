@@ -40,7 +40,7 @@ int lineCleaner(char *str, char dest[]){     //leaves only IsValue() characters 
     return 0;
 }
 
-int strInverter(char *str, Point *point){  //gets numerical string, divides into 3 parts, and conveys it to Table
+int strConverter(char *str, Point *point){  //gets numerical string, divides into 3 parts, and conveys it to Table
     char strtau[20];
     char strzeta[20];
     char strtheta[20];
@@ -105,7 +105,7 @@ int readFile(char filename[20], Point point[]){   //get file from filename, and 
             char buf[50];
             lineCleaner(line, buf);
             //printf("debug: cleaned line: %s", buf);
-            strInverter(buf, &point[i]);
+            strConverter(buf, &point[i]);
             //printf("%dth line done!\n",i);
             //printf("debug: %dth tau: %lf\n", i, point[i].tau);
         }
@@ -162,17 +162,14 @@ void addRoute(Route *route, char *filename){    //copy filename[] into route.rou
     sprintf(route->route_name, "%s", filename);
 }
 
-int main(void){
-    test();
-    
+int main(void){ 
     char filename[TXT_LENGTH];  //max filename legnth: TXT_LENGTH
     Point point[POINT_NUM];     //max number of points: POINT_NUM
     Route route[ROUTE_NUM];     //max number of routes: ROUTE_NUM
-    int route_index = 0;        //number of routes = most recent route
+    int route_index = 0;        //number of routes = most recent route index
 
     printf("Homework 2: Action Calculator\n");
-    while (1)
-    {
+    while (1) {  //point[] is reused for every new route.txt. point data is not saved.
         printf("Type the name of a route txt file placed in the same folder.\n");
         printf("Number of points must be 16, and name of the txt file must be shorter than 20.\n");
         printf("Press q to end adding route: ");
@@ -181,11 +178,11 @@ int main(void){
             break;
         fileNameTrimmer(filename);
         if (readFile(filename, point) == SUCCESS){  //when fopen() succeed
-            extentionRemover(filename);
-            addRoute(&route[route_index], filename);
+            extentionRemover(filename); //removes '.txt'
+            addRoute(&route[route_index], filename);    //add name to struct route[i].
             printf("debug: Route %s added\n", route[route_index].route_name);
 
-            calculateAction(point, &(route[route_index].total_action));
+            calculateAction(point, &(route[route_index].total_action)); //calculate action from point[] and save at route[].
             route_index += 1;
         }
     }
@@ -195,7 +192,7 @@ int main(void){
         printf("Total Action: %f\n", route[i].total_action);
     }
 
-    char rootname[10] ="rootfile"; 
+    char rootname[10] ="rootfile"; //.root file name is fixed as 'rootfile.root'
     do_TSomething_C(rootname, route_index, route);  //call external C++ fuction using ROOT lib
     return 0;
 }

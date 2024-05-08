@@ -17,5 +17,5 @@ void do_TSomething_C(char* filename, int total_route, Route route[]);
 #ifdef __cplusplus
 }
 #endif
-void test();
-#endif
+
+#endif  //DO_TSOMETHING_H
