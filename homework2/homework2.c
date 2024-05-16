@@ -11,7 +11,9 @@ typedef struct {    //struct Point with tau, zeta, theta
 } Point;
 
 int IsValue(char value){    //return 1 if value is number of ','
-    char valueset[12] = {'0','1','2','3','4','5','6','7','8','9',',','.'}; //defines meaningful char only
+    
+    //Defines meaningful char only; there are total 12 chars.
+    char valueset[12] = {'0','1','2','3','4','5','6','7','8','9',',','.'};
 
     for (int i=0;i<12;i++){
         if (value == valueset[i])
@@ -57,14 +59,13 @@ int strConverter(char *str, Point *point){  //gets numerical string, divides int
     strtau[i] = '\0';
     str++;
     i = 0;
-    
+
     while (*str != ','){
         strzeta[i] = *str;
-
         str++;
         i++;
     }
-    
+
     strzeta[i] = '\0';
     str++;
     i = 0;
@@ -146,7 +147,9 @@ void extentionRemover(char *str){   //removes 4 characters (.xxx) from behind
 
 void calculateAction(Point point[], double *action){    //get sum of dActions from point[], save at *action
     double sum_action = 0;
-    for (int i=1; i<POINT_NUM;i++){     //Starts from (0,1) interval 
+
+    //Starts from (0,1) interval 
+    for (int i=1; i<POINT_NUM;i++){
         sum_action += getdAction(
                                  point[i].tau, point[i-1].tau,
                                  point[i].zeta, point[i-1].zeta,
