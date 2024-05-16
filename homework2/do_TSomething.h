@@ -11,7 +11,8 @@ typedef struct {
 #ifdef __cplusplus
 extern "C"{
 #endif
-    
+
+//do_TSomething() caller from C main(). Call this in C program to use C++ features.
 void do_TSomething_C(char* filename, int total_route, Route route[]);
 
 #ifdef __cplusplus
