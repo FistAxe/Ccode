@@ -6,7 +6,7 @@
 #define ROUTENAME_LENGTH 15
 #define POINT_NUM 16    //point contains (0, 0) to (15, 15)
 #define ROUTE_NUM 9
-#define CURVE_NUM 10
+#define CURVE_NUM 0
 
 #define INIT_TAU 0
 #define MAX_TAU 3.20065
@@ -38,7 +38,7 @@ void func(){
 
 double randomAmpGen(int attempt){
     int ran = rand();
-    double max_amplitude = RANDOM_RANGE*pow(RANDOM_DECREASE, attempt - 1);
+    double max_amplitude = RANDOM_RANGE;
     double amplitude = max_amplitude * ((ran- 16384) / 16384);
     return amplitude;
 }
@@ -97,36 +97,46 @@ void straight_route(
     }
 }
 
-void calculateRoute(Route *route, int attempt, int iter){
-    strcpy(route[attempt].route_name, "%sth attempt");
+void calculateRoute(Route *route, int attempt, int iter, int curv){
+    //char routename[15] = "%dth attempt", itoa(attempt);
+    //strcpy(route[attempt].route_name, routename);
     Route sample_route;
-    sample_route.total_action = route[attempt - 1].total_action;
-
-    sample_route.point[0].tau = route[attempt].point[0].tau = route[attempt - 1].point[0].tau;
-    sample_route.point[0].zeta = route[attempt].point[0].zeta = route[attempt - 1].point[0].zeta;
-    sample_route.point[0].theta = route[attempt].point[0].theta = route[attempt - 1].point[0].theta;
-    for (int i=1; i<POINT_NUM;i++){
-        sample_route.point[i].tau = route[attempt].point[i].tau = route[0].point[i].tau;
-        sample_route.point[i].zeta = route[attempt - 1].point[i].zeta;
-        sample_route.point[i].theta = route[attempt - 1].point[i].theta;
+    //action init
+    //attempt point init
+    for (int i=0; i<POINT_NUM;i++){
+        route[attempt].point[i].tau = route[attempt - 1].point[i].tau;
+        route[attempt].point[i].zeta = route[attempt - 1].point[i].zeta;
+        route[attempt].point[i].theta = route[attempt - 1].point[i].theta;
     }
-    for (int repeat=0; repeat<iter; repeat++)
-        for (int curve=1; curve<=CURVE_NUM; curve++){
+    calculateAction(route[attempt].point, &(route[attempt].total_action));
+    printf("Action must be same to before: %f\n", route[attempt].total_action);
+    //sample point init
+    for (int repeat=0; repeat<iter; repeat++){
+        for (int i=0; i<POINT_NUM;i++){
+            sample_route.point[i].tau = route[attempt].point[i].tau;
+            sample_route.point[i].zeta = route[attempt].point[i].zeta;
+            sample_route.point[i].theta = route[attempt].point[i].theta;
+        }
+        for (int curve=curv; curve<=CURVE_NUM + curv; curve++){
             double amp_zeta = randomAmpGen(attempt);
-            double amp_theta = randomAmpGen(attempt);
+            double amp_theta = randomAmpGen(attempt) * 3;
+
             for (int i=1; i<POINT_NUM;i++){
-                double dzeta = sin(i / (POINT_NUM - 1) * PI * curve) * amp_zeta;
-                double dtheta = sin(i / (POINT_NUM - 1) * PI * curve) * amp_theta;
+                double dzeta = sin(i / double(POINT_NUM - 1) * PI * curve) * amp_zeta;
+                double dtheta = sin(i / double(POINT_NUM - 1) * PI * curve) * amp_theta;
 
                 sample_route.point[i].zeta += dzeta;
                 sample_route.point[i].theta += dtheta;
+                printf("dzeta: %f\n", dzeta);
                 }
             }
         calculateAction(sample_route.point, &(sample_route.total_action));
+        printf("Action: %f\n", sample_route.total_action);
         if (sample_route.total_action < route[attempt].total_action){
             route[attempt] = sample_route;
-            printf("less Action of : %f", sample_route.total_action);
+            printf("less Action of : %f\n", sample_route.total_action);
         }
+    }
 }
 
 int homework3(Route* route, int iter){
@@ -135,20 +145,23 @@ int homework3(Route* route, int iter){
     char key = '0';
     printf("%dth Iterantion, Action: %f\n", 0, route[0].total_action);
 
-    for (int i=1; i<ROUTE_NUM; i++){
+    for (int attempt=1; attempt<ROUTE_NUM; attempt++){
         getchar();
-        calculateRoute(route, i, iter);
+        calculateRoute(route, attempt, iter, attempt);
 
-        printf("%dth Iterantion, Action: %f\n", i, route[i].total_action);
+        printf("%dth Iterantion, Action: %f\n", attempt, route[attempt].total_action);
         printf("To repeat, press 'r'. To proceed to next step, press 'p'.\n");
         while (1){
             scanf("%c", &key);
             if (key == 'r'){
-                i -= 1;
+                attempt -= 1;
                 break;
             }
             else if (key == 'p'){
                 break;
+            }
+            else if (key == 'b'){
+                return 0;
             }
             else {
                 printf("Wrong key!\n");
