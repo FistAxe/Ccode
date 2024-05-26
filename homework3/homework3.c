@@ -38,8 +38,11 @@ void func(){
 
 double randomAmpGen(int attempt){
     int ran = rand();
+    printf("ran = %d\n", ran);
+    double fran = (double) ((double)(ran - RAND_MAX/2) / (double)(RAND_MAX/2));
+    printf("fran = %f\n", fran);
     double max_amplitude = RANDOM_RANGE;
-    double amplitude = max_amplitude * ((ran- 16384) / 16384);
+    double amplitude = max_amplitude * fran;
     return amplitude;
 }
 
@@ -122,8 +125,9 @@ void calculateRoute(Route *route, int attempt, int iter, int curv){
             double amp_theta = randomAmpGen(attempt) * 3;
 
             for (int i=1; i<POINT_NUM;i++){
-                double dzeta = sin(i / double(POINT_NUM - 1) * PI * curve) * amp_zeta;
-                double dtheta = sin(i / double(POINT_NUM - 1) * PI * curve) * amp_theta;
+                double progress = (double)i / (POINT_NUM - 1);
+                double dzeta = sin(progress * PI * curve) * amp_zeta;
+                double dtheta = sin(progress * PI * curve) * amp_theta;
 
                 sample_route.point[i].zeta += dzeta;
                 sample_route.point[i].theta += dtheta;
