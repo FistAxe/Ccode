@@ -32,9 +32,6 @@ typedef struct {    //struct Route with route_name, total_action, and 'Point' ar
     Point point[POINT_NUM];
 } Route;
 
-void func(){
-    printf("func\n");
-}
 
 double randomAmpGen(int attempt){
     int ran = rand();
@@ -100,19 +97,18 @@ void straight_route(
     }
 }
 
-void calculateRoute(Route *route, int attempt, int iter, int curv){
-    //char routename[15] = "%dth attempt", itoa(attempt);
-    //strcpy(route[attempt].route_name, routename);
+void calculateRoute(Route *route, int attempt, int iter, int curv, int isFirst){
     Route sample_route;
-    //action init
-    //attempt point init
-    for (int i=0; i<POINT_NUM;i++){
-        route[attempt].point[i].tau = route[attempt - 1].point[i].tau;
-        route[attempt].point[i].zeta = route[attempt - 1].point[i].zeta;
-        route[attempt].point[i].theta = route[attempt - 1].point[i].theta;
+
+    //first attempt init
+    if (isFirst != 0){
+        for (int i=0; i<POINT_NUM;i++){
+            route[attempt].point[i].tau = route[attempt - 1].point[i].tau;
+            route[attempt].point[i].zeta = route[attempt - 1].point[i].zeta;
+            route[attempt].point[i].theta = route[attempt - 1].point[i].theta;
+        }
+        calculateAction(route[attempt].point, &(route[attempt].total_action));
     }
-    calculateAction(route[attempt].point, &(route[attempt].total_action));
-    printf("Action must be same to before: %f\n", route[attempt].total_action);
     //sample point init
     for (int repeat=0; repeat<iter; repeat++){
         for (int i=0; i<POINT_NUM;i++){
@@ -120,10 +116,11 @@ void calculateRoute(Route *route, int attempt, int iter, int curv){
             sample_route.point[i].zeta = route[attempt].point[i].zeta;
             sample_route.point[i].theta = route[attempt].point[i].theta;
         }
+        //curve에 대해서, 다 진폭이 다르다.
         for (int curve=curv; curve<=CURVE_NUM + curv; curve++){
-            double amp_zeta = randomAmpGen(attempt);
-            double amp_theta = randomAmpGen(attempt) * 3;
-
+            double amp_zeta = randomAmpGen(attempt)*pow(RANDOM_DECREASE, curve);
+            double amp_theta = randomAmpGen(attempt)*pow(RANDOM_DECREASE, curve) * 3;
+            //각 점의 변동치에 대해서.
             for (int i=1; i<POINT_NUM;i++){
                 double progress = (double)i / (POINT_NUM - 1);
                 double dzeta = sin(progress * PI * curve) * amp_zeta;
@@ -131,37 +128,40 @@ void calculateRoute(Route *route, int attempt, int iter, int curv){
 
                 sample_route.point[i].zeta += dzeta;
                 sample_route.point[i].theta += dtheta;
-                printf("dzeta: %f\n", dzeta);
                 }
             }
+        //모든 curve에 대한 계산이 끝난 뒤
         calculateAction(sample_route.point, &(sample_route.total_action));
         printf("Action: %f\n", sample_route.total_action);
         if (sample_route.total_action < route[attempt].total_action){
             route[attempt] = sample_route;
-            printf("less Action of : %f\n", sample_route.total_action);
+            printf("Action updated.\n");
         }
     }
 }
 
 int homework3(Route* route, int iter){
-    func();
+
     straight_route(route, INIT_TAU, MAX_TAU, INIT_ZETA, MAX_ZETA, INIT_THETA, MAX_THETA);
     char key = '0';
     printf("%dth Iterantion, Action: %f\n", 0, route[0].total_action);
+    int isFirst = 1;
 
     for (int attempt=1; attempt<ROUTE_NUM; attempt++){
         getchar();
-        calculateRoute(route, attempt, iter, attempt);
+        calculateRoute(route, attempt, iter, attempt, isFirst);
 
-        printf("%dth Iterantion, Action: %f\n", attempt, route[attempt].total_action);
+        printf("%dth Iterantion, Action: %f -> %f\n", attempt, route[attempt - 1].total_action, route[attempt].total_action);
         printf("To repeat, press 'r'. To proceed to next step, press 'p'.\n");
         while (1){
             scanf("%c", &key);
             if (key == 'r'){
                 attempt -= 1;
+                isFirst = 0;
                 break;
             }
             else if (key == 'p'){
+                isFirst = 1;
                 break;
             }
             else if (key == 'b'){
