@@ -178,10 +178,8 @@ int homework3(Route* route, int iter){
         }
     }
     printf("Program ended. Last Action was: %f\n", route[ROUTE_NUM].total_action);
+    return 0;
 }
-
-
-
 
 int main(void){
     Route route[ROUTE_NUM];
@@ -193,8 +191,9 @@ int main(void){
     char save = '0';    //File exporting part
     getchar();
     printf("save? press y: \n");
+    scanf("%c", &save);
     if (save == 'y'){
-        FILE *table = fopen("result.csv", "w");
+        FILE *table = fopen("testresult.csv", "w");
         if (table == NULL){
             printf("file open error!\n");
             return 0;
@@ -205,10 +204,10 @@ int main(void){
                 fprintf(table,"%f,%f,%f\n", route[ROUTE_NUM].point[i].tau, route[ROUTE_NUM].point[i].zeta, route[ROUTE_NUM].point[i].theta);
             }
             fclose(table);
-            return 0;
         }
     }
-    else {
-        return 0;
-    }
+    getchar();
+    printf("Checking error\n");
+    scanf("%c", &save);
+    return 0;
 }
