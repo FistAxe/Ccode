@@ -5,8 +5,8 @@
 
 #define ROUTENAME_LENGTH 15
 #define POINT_NUM 16    //point contains (0, 0) to (15, 15)
-#define ROUTE_NUM 9
-#define CURVE_NUM 8
+#define ROUTE_NUM 7
+#define CURVE_NUM 16
 
 #define INIT_TAU 0
 #define MAX_TAU 3.20065
@@ -17,7 +17,8 @@
 #define PI 3.14159
 
 #define RANDOM_RANGE 0.01
-#define RANDOM_DECREASE 0.2
+#define ATTEMPT_DECREASE 0.5
+#define CURVE_DECREASE 0.7
 
 
 typedef struct {    //struct Point with tau, zeta, theta
@@ -35,11 +36,11 @@ typedef struct {    //struct Route with route_name, total_action, and 'Point' ar
 
 double randomAmpGen(int attempt){
     int ran = rand();
-    printf("ran = %d\n", ran);
-    double fran = (double) ((double)(ran - RAND_MAX/2) / (double)(RAND_MAX/2));
-    printf("fran = %f\n", fran);
+    //printf("ran = %d\n", ran);
+    double dran = (double) ((double)(ran - RAND_MAX/2) / (double)(RAND_MAX/2));
+    //printf("dran = %f\n", dran);
     double max_amplitude = RANDOM_RANGE;
-    double amplitude = max_amplitude * fran;
+    double amplitude = max_amplitude * dran;
     return amplitude;
 }
 
@@ -97,7 +98,7 @@ void straight_route(
     }
 }
 
-void calculateRoute(Route *route, int attempt, int iter, int isFirst){    //attempt는 1부터 시작
+void calculateRoute(Route *route, int attempt, int iter, int isFirst, int* counter){    //attempt는 1부터 시작
     Route sample_route;
 
     //first attempt init
@@ -109,7 +110,10 @@ void calculateRoute(Route *route, int attempt, int iter, int isFirst){    //atte
         }
         calculateAction(route[attempt].point, &(route[attempt].total_action));
     }
-    //sample point init
+    //counter init
+    for (int i=0; i<CURVE_NUM; i++){
+        counter[i] = 0;
+    }
 
     
     for (int curve=1; curve<CURVE_NUM; curve++){
@@ -122,8 +126,8 @@ void calculateRoute(Route *route, int attempt, int iter, int isFirst){    //atte
                 sample_route.point[i].theta = route[attempt].point[i].theta;
                 }
             //curve에 대해서, 다 진폭이 다르다.
-            double amp_zeta = randomAmpGen(attempt)*pow(RANDOM_DECREASE, curve + attempt - 2);
-            double amp_theta = randomAmpGen(attempt)*pow(RANDOM_DECREASE, curve + attempt - 2) * 3;
+            double amp_zeta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 1)*pow(ATTEMPT_DECREASE, attempt - 1);
+            double amp_theta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 1)*pow(ATTEMPT_DECREASE, attempt - 1) * 3;
             //각 점의 변동치에 대해서.
             for (int i=1; i<POINT_NUM;i++){
                 double progress = (double)i / (POINT_NUM - 1);
@@ -136,10 +140,12 @@ void calculateRoute(Route *route, int attempt, int iter, int isFirst){    //atte
             //모든 curve에 대한 계산이 끝난 뒤
             calculateAction(sample_route.point, &(sample_route.total_action));
             printf("Action: %f\n", sample_route.total_action);
+            //갱신될 경우 다시 iter만큼 반복.
             if (sample_route.total_action < route[attempt].total_action){
                 route[attempt] = sample_route;
-                printf("Action updated.\n");
-                iter -= 1;
+                printf("----Action updated----\n");
+                counter[curve] += 1;
+                //itr = 0;
             }
         }
     }
@@ -151,12 +157,18 @@ int homework3(Route* route, int iter){
     char key = '0';
     printf("%dth Iterantion, Action: %f\n", 0, route[0].total_action);
     int isFirst = 1;
+    int counter[CURVE_NUM];
+
 
     for (int attempt=1; attempt<=ROUTE_NUM; attempt++){
         getchar();
-        calculateRoute(route, attempt, iter, isFirst);
+        
+        calculateRoute(route, attempt, iter, isFirst, counter);
 
         printf("%dth Iterantion, Action: %f -> %f\n", attempt, route[attempt - 1].total_action, route[attempt].total_action);
+        for (int i=1; i<CURVE_NUM; i++){
+            printf("For %dth curve, %d change occured\n", i, counter[i]);
+        }
         printf("To repeat, press 'r'. To proceed to next step, press 'p'.\n");
         while (1){
             scanf("%c", &key);
