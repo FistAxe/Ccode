@@ -6,7 +6,7 @@
 #define ROUTENAME_LENGTH 15
 #define POINT_NUM 16    //point contains (0, 0) to (15, 15)
 #define ROUTE_NUM 7
-#define CURVE_NUM 16
+#define CURVE_NUM 17
 
 #define INIT_TAU 0
 #define MAX_TAU 3.20065
@@ -19,6 +19,7 @@
 #define RANDOM_RANGE 0.01
 #define ATTEMPT_DECREASE 0.5
 #define CURVE_DECREASE 0.7
+#define FIFTEENTH_CONST 3
 
 
 typedef struct {    //struct Point with tau, zeta, theta
@@ -114,6 +115,7 @@ void calculateRoute(Route *route, int attempt, int iter, int isFirst, int* count
     for (int i=0; i<CURVE_NUM; i++){
         counter[i] = 0;
     }
+    int trimming = 0;
 
     
     for (int curve=1; curve<CURVE_NUM; curve++){
@@ -126,17 +128,30 @@ void calculateRoute(Route *route, int attempt, int iter, int isFirst, int* count
                 sample_route.point[i].theta = route[attempt].point[i].theta;
                 }
             //curve에 대해서, 다 진폭이 다르다.
-            double amp_zeta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 1)*pow(ATTEMPT_DECREASE, attempt - 1);
-            double amp_theta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 1)*pow(ATTEMPT_DECREASE, attempt - 1) * 3;
+            double amp_zeta, amp_theta;
+            if (curve != 15){
+                amp_zeta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 1)*pow(ATTEMPT_DECREASE, attempt - 1);
+                amp_theta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 1)*pow(ATTEMPT_DECREASE, attempt - 1) * 3;
+            }
+            else {
+                amp_zeta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 14)*pow(ATTEMPT_DECREASE, attempt - 1)*FIFTEENTH_CONST;
+                amp_theta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 14)*pow(ATTEMPT_DECREASE, attempt - 1)*FIFTEENTH_CONST * 3;
+            }
             //각 점의 변동치에 대해서.
             for (int i=1; i<POINT_NUM;i++){
                 double progress = (double)i / (POINT_NUM - 1);
-                double dzeta = sin(progress * PI * curve) * amp_zeta;
-                double dtheta = sin(progress * PI * curve) * amp_theta;
+                double dzeta, dtheta;
+                if (progress == 1){
+                    dzeta = dtheta = 0;
+                }
+                else {
+                    dzeta = sin(progress * PI * curve) * amp_zeta;
+                    dtheta = sin(progress * PI * curve) * amp_theta;
+                }
 
                 sample_route.point[i].zeta += dzeta;
                 sample_route.point[i].theta += dtheta;
-                }
+            }
             //모든 curve에 대한 계산이 끝난 뒤
             calculateAction(sample_route.point, &(sample_route.total_action));
             printf("Action: %f\n", sample_route.total_action);
@@ -145,8 +160,16 @@ void calculateRoute(Route *route, int attempt, int iter, int isFirst, int* count
                 route[attempt] = sample_route;
                 printf("----Action updated----\n");
                 counter[curve] += 1;
-                //itr = 0;
+                itr = 0;
             }
+        }
+        if (trimming == 1){
+            break;
+        }
+        else if (curve == CURVE_NUM - 1){
+            curve = 1;
+            trimming = 1;
+            printf("trimming\n");
         }
     }
 }
