@@ -37,7 +37,7 @@ int SolveDE_f(int arraysize)
     int Narray = arraysize;
 
     REAL zeta[Narray];
-    REAL tauM = 3.0;
+    REAL tauM = 3.2;
     REAL dtau = tauM/(Narray - 1);
 
     printf("size of REAL is %d\n", sizeof(tauM));
@@ -91,7 +91,7 @@ int SolveDE_d(int arraysize)
     int Narray = arraysize;
 
     REAL zeta[Narray];
-    REAL tauM = 3.0;
+    REAL tauM = 3.2;
     REAL dtau = tauM/(Narray - 1);
 
     printf("size of REAL is %d\n", sizeof(tauM));
