@@ -129,15 +129,19 @@ void calculateRoute(Route *route, int attempt, int iter, int isFirst, int* count
                 }
             //curve에 대해서, 다 진폭이 다르다.
             double amp_zeta, amp_theta;
-            if (curve != 15){
+            if (curve == 15){
+                break;
+            }
+            else if (trimming == 1){
+                amp_zeta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve + 10)*pow(ATTEMPT_DECREASE, attempt - 1);
+                amp_theta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve + 10)*pow(ATTEMPT_DECREASE, attempt - 1) * 3;
+            }
+            else {
                 amp_zeta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 1)*pow(ATTEMPT_DECREASE, attempt - 1);
                 amp_theta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 1)*pow(ATTEMPT_DECREASE, attempt - 1) * 3;
             }
-            else {
-                amp_zeta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 14)*pow(ATTEMPT_DECREASE, attempt - 1)*FIFTEENTH_CONST;
-                amp_theta = randomAmpGen(attempt)*pow(CURVE_DECREASE, curve - 14)*pow(ATTEMPT_DECREASE, attempt - 1)*FIFTEENTH_CONST * 3;
-            }
-            //각 점의 변동치에 대해서.
+
+                //각 점의 변동치에 대해서.
             for (int i=1; i<POINT_NUM;i++){
                 double progress = (double)i / (POINT_NUM - 1);
                 double dzeta, dtheta;
@@ -152,6 +156,8 @@ void calculateRoute(Route *route, int attempt, int iter, int isFirst, int* count
                 sample_route.point[i].zeta += dzeta;
                 sample_route.point[i].theta += dtheta;
             }
+            
+
             //모든 curve에 대한 계산이 끝난 뒤
             calculateAction(sample_route.point, &(sample_route.total_action));
             printf("Action: %f\n", sample_route.total_action);
